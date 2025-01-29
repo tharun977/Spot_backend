@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Box, Button, TextField, Typography, Card, Divider, FormControl, FormLabel } from "@mui/material";
 
 export default function Login({ setRole }) {
   const [userId, setUserId] = useState("");
@@ -33,52 +34,59 @@ export default function Login({ setRole }) {
   };
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.title}>Login</h2>
-      <form onSubmit={handleLogin} style={styles.form}>
-        <input
-          type="text"
-          placeholder="User ID"
-          value={userId}
-          onChange={(e) => setUserId(e.target.value)}
-          required
-          style={styles.input}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={styles.input}
-        />
-        <button type="submit" style={styles.button}>Login</button>
-        {error && <p style={styles.error}>{error}</p>}
-      </form>
-    </div>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        backgroundColor: "#f4f6f8",
+      }}
+    >
+      <Card sx={{ padding: 3, maxWidth: 400, width: "100%" }}>
+        <Typography variant="h4" align="center" sx={{ marginBottom: 2 }}>
+          Login
+        </Typography>
+        <form onSubmit={handleLogin}>
+          <FormControl fullWidth margin="normal">
+            <FormLabel htmlFor="userId">User ID</FormLabel>
+            <TextField
+              id="userId"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+              required
+              fullWidth
+              variant="outlined"
+              placeholder="Enter your user ID"
+            />
+          </FormControl>
+          <FormControl fullWidth margin="normal">
+            <FormLabel htmlFor="password">Password</FormLabel>
+            <TextField
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              fullWidth
+              variant="outlined"
+              placeholder="Enter your password"
+            />
+          </FormControl>
+          {error && <Typography color="error" align="center" sx={{ marginTop: 1 }}>{error}</Typography>}
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{ marginTop: 2 }}
+          >
+            Login
+          </Button>
+        </form>
+        <Divider sx={{ marginTop: 2 }} />
+        {/* Optional: Include Forgot Password Link if needed */}
+        {/* <Link href="/forgot-password" variant="body2" sx={{ display: "block", textAlign: "center", marginTop: 2 }}>Forgot Password?</Link> */}
+      </Card>
+    </Box>
   );
 }
-
-const styles = {
-  container: { textAlign: "center", marginTop: "50px" },
-  title: { fontSize: "24px", marginBottom: "20px" },
-  form: { display: "flex", flexDirection: "column", alignItems: "center" },
-  input: {
-    width: "300px",
-    padding: "10px",
-    margin: "10px 0",
-    borderRadius: "5px",
-    border: "1px solid #ccc",
-  },
-  button: {
-    width: "150px",
-    padding: "10px",
-    backgroundColor: "#007BFF",
-    color: "#fff",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-    fontSize: "16px",
-  },
-  error: { color: "red", marginTop: "10px" },
-};

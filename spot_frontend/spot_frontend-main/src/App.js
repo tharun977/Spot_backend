@@ -19,15 +19,16 @@ export default function App() {
 
   return (
     <Router>
-      {/* The Navbar should only be shown after login */}
-      {role && <Navbar role={role} />}
-      
+      {/* Only show Navbar after the user is logged in */}
+      {role && <Navbar />}
+
       <Routes>
         {/* Redirect to Login if not logged in */}
         <Route
           path="/"
           element={role ? <Home role={role} /> : <Navigate to="/login" />}
         />
+        {/* Login page is isolated - no Navbar or any content except the login form */}
         <Route path="/login" element={<Login setRole={setRole} />} />
         
         {/* Protect other routes, if user is not logged in, redirect to login */}
