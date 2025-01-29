@@ -8,6 +8,7 @@ export default function Navbar() {
       <Link to="/parking-places" style={styles.link}>Parking Places</Link>
       <Link to="/payments" style={styles.link}>Payments</Link>
       <Link to="/logs" style={styles.link}>Logs</Link>
+      <Link to="/login" style={styles.link}>Login</Link> {/* Added Login Link */}
     </nav>
   );
 }

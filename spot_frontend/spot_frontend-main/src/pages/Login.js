@@ -6,16 +6,14 @@ export default function Login() {
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false); // New state for loading
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
-    setLoading(true); // Start loading
 
     try {
-      const response = await axios.post("http://localhost:8000/api/login", { // Change URL to Django's endpoint
+      const response = await axios.post("http://localhost:8000/api/login", {
         user_id: userId,
         password: password,
       });
@@ -23,7 +21,7 @@ export default function Login() {
       if (response.data.success) {
         localStorage.setItem("userRole", response.data.role); // Store role in local storage
 
-        // Redirect based on user role
+        // Redirect based on role
         if (response.data.role === "admin") {
           navigate("/admin-dashboard");
         } else if (response.data.role === "staff") {
@@ -32,13 +30,11 @@ export default function Login() {
           navigate("/user-dashboard");
         }
       } else {
-        setError("Invalid ID or password. Please try again.");
+        setError(response.data.error || "Invalid credentials. Please try again.");
       }
     } catch (error) {
       console.error("Login error:", error);
       setError("Something went wrong. Try again later.");
-    } finally {
-      setLoading(false); // Stop loading after the request completes
     }
   };
 
@@ -62,9 +58,7 @@ export default function Login() {
           required
           style={styles.input}
         />
-        <button type="submit" style={styles.button} disabled={loading}> {/* Disable button during loading */}
-          {loading ? "Logging in..." : "Login"}
-        </button>
+        <button type="submit" style={styles.button}>Login</button>
         {error && <p style={styles.error}>{error}</p>}
       </form>
     </div>

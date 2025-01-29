@@ -18,31 +18,25 @@ def homepage(request):
 # Login view for user authentication
 @api_view(['POST'])
 def login(request):
-    """
-    Login endpoint that authenticates the user and returns a JWT token.
-    """
-    username = request.data.get('user_id')
+    user_id = request.data.get('user_id')
     password = request.data.get('password')
 
-    if not username or not password:
-        return Response({'detail': 'Username and password are required.'}, status=400)
+    if not user_id or not password:
+        return Response({"error": "Both user ID and password are required"}, status=400)
 
-    # Authenticate user
-    user = authenticate(request, username=username, password=password)
-
+    # Authenticate the user
+    user = authenticate(username=user_id, password=password)
+    
     if user is not None:
-        # Generate JWT token
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
+        # User is authenticated, get the role
+        role = user.role  # assuming the role field is part of the User model
         return Response({
-            'success': True,
-            'access_token': access_token,
-            'refresh_token': str(refresh),
-            'role': user.role  # Send back the user's role if needed
+            "success": True,
+            "role": role
         })
     else:
-        return Response({'detail': 'Invalid credentials.'}, status=401)
-
+        return Response({"success": False, "error": "Invalid credentials"}, status=401)
+    
 # User viewset
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
