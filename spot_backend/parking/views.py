@@ -2,6 +2,11 @@ from rest_framework import viewsets
 from .models import User, VehicleType, ParkingPlace, ParkingLot, ParkingDetails, PaymentDetails, LogDetails
 from .serializers import UserSerializer, VehicleTypeSerializer, ParkingPlaceSerializer, ParkingLotSerializer, ParkingDetailsSerializer, PaymentDetailsSerializer, LogDetailsSerializer
 
+from django.http import HttpResponse
+
+def homepage(request):
+    return HttpResponse("Welcome to the Smart Parking Management Tool!")
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
