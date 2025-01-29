@@ -1,0 +1,10 @@
+django
+djangorestframework
+django-cors-headers
+djangorestframework-simplejwt
+django-debug-toolbar
+psycopg2
+pillow
+djangorestframework-jwt
+django-environ
+gunicorn

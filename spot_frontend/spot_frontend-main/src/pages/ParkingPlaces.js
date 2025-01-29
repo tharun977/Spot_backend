@@ -9,7 +9,7 @@ export default function ParkingPlaces() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/parking-places") // Backend API URL
+      .get("http://127.0.0.1:8000/api/parking-places/")  // Correct API URL for Django backend
       .then((response) => {
         setPlaces(response.data);
         setLoading(false);
