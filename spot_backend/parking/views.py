@@ -49,6 +49,12 @@ class PaymentDetailsViewSet(viewsets.ModelViewSet):
     serializer_class = PaymentDetailsSerializer
     permission_classes = [AllowAny]
 
+@api_view(['GET'])
+def get_payments(request):
+    payments = PaymentDetails.objects.all()
+    serializer = PaymentDetailsSerializer(payments, many=True)
+    return Response(serializer.data)
+
 class LogDetailsViewSet(viewsets.ModelViewSet):
     queryset = LogDetails.objects.all()
     serializer_class = LogDetailsSerializer
