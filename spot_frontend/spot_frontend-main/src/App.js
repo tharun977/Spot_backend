@@ -19,13 +19,18 @@ export default function App() {
 
   return (
     <Router>
-      <Navbar />
+      {/* The Navbar should only be shown after login */}
+      {role && <Navbar role={role} />}
+      
       <Routes>
+        {/* Redirect to Login if not logged in */}
         <Route
           path="/"
           element={role ? <Home role={role} /> : <Navigate to="/login" />}
         />
         <Route path="/login" element={<Login setRole={setRole} />} />
+        
+        {/* Protect other routes, if user is not logged in, redirect to login */}
         <Route
           path="/parking-places"
           element={role ? <ParkingPlaces /> : <Navigate to="/login" />}
@@ -34,8 +39,10 @@ export default function App() {
           path="/payments"
           element={role ? <Payments /> : <Navigate to="/login" />}
         />
-        {/* No login check for /logs route */}
-        <Route path="/logs" element={<Logs />} />
+        <Route
+          path="/logs"
+          element={role ? <Logs /> : <Navigate to="/login" />}
+        />
       </Routes>
     </Router>
   );

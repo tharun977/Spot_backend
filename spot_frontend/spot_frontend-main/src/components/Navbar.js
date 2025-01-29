@@ -6,9 +6,8 @@ export default function Navbar() {
     <nav style={styles.navbar}>
       <Link to="/" style={styles.link}>Home</Link>
       <Link to="/parking-places" style={styles.link}>Parking Places</Link>
-      <Link to="/payments" style={styles.link}>Payments</Link>
+      <Link to="/payments" style={styles.link}>Payments</Link> {/* Payments link added back */}
       <Link to="/logs" style={styles.link}>Logs</Link>
-      <Link to="/login" style={styles.link}>Login</Link> {/* Added Login Link */}
     </nav>
   );
 }

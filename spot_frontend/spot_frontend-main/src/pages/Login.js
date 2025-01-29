@@ -1,42 +1,33 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Login() {
+export default function Login({ setRole }) {
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Hardcoded user credentials
-  const hardcodedCredentials = [
-    { user_id: "admin_user", password: "admin_pass", role: "admin" },
-    { user_id: "staff_user", password: "staff_pass", role: "staff" },
-    { user_id: "regular_user", password: "user_pass", role: "user" },
-  ];
-
   const handleLogin = (e) => {
     e.preventDefault();
     setError(null);
 
-    // Check if the provided user_id and password match any hardcoded user
-    const user = hardcodedCredentials.find(
-      (cred) => cred.user_id === userId && cred.password === password
+    // Hardcoded login credentials for testing
+    const users = {
+      admin: { userId: "admin", password: "admin123", role: "admin" },
+      staff: { userId: "staff", password: "staff123", role: "staff" },
+      user: { userId: "user", password: "user123", role: "user" },
+    };
+
+    // Check if the entered userId and password match
+    const user = Object.values(users).find(
+      (u) => u.userId === userId && u.password === password
     );
 
     if (user) {
-      // Successful login, store the role in local storage
-      localStorage.setItem("userRole", user.role);
-
-      // Redirect based on the user role
-      if (user.role === "admin") {
-        navigate("/admin-dashboard");
-      } else if (user.role === "staff") {
-        navigate("/staff-dashboard");
-      } else {
-        navigate("/user-dashboard");
-      }
+      localStorage.setItem("userRole", user.role); // Store role in localStorage
+      setRole(user.role); // Set role in state
+      navigate("/"); // Redirect to home page
     } else {
-      // Invalid credentials
       setError("Invalid ID or password. Please try again.");
     }
   };
