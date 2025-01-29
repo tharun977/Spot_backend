@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
@@ -8,33 +7,37 @@ export default function Login() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  // Hardcoded user credentials
+  const hardcodedCredentials = [
+    { user_id: "admin_user", password: "admin_pass", role: "admin" },
+    { user_id: "staff_user", password: "staff_pass", role: "staff" },
+    { user_id: "regular_user", password: "user_pass", role: "user" },
+  ];
+
+  const handleLogin = (e) => {
     e.preventDefault();
     setError(null);
 
-    try {
-      const response = await axios.post("http://localhost:8000/api/login", {
-        user_id: userId,
-        password: password,
-      });
+    // Check if the provided user_id and password match any hardcoded user
+    const user = hardcodedCredentials.find(
+      (cred) => cred.user_id === userId && cred.password === password
+    );
 
-      if (response.data.success) {
-        localStorage.setItem("userRole", response.data.role); // Store role in local storage
+    if (user) {
+      // Successful login, store the role in local storage
+      localStorage.setItem("userRole", user.role);
 
-        // Redirect based on role
-        if (response.data.role === "admin") {
-          navigate("/admin-dashboard");
-        } else if (response.data.role === "staff") {
-          navigate("/staff-dashboard");
-        } else {
-          navigate("/user-dashboard");
-        }
+      // Redirect based on the user role
+      if (user.role === "admin") {
+        navigate("/admin-dashboard");
+      } else if (user.role === "staff") {
+        navigate("/staff-dashboard");
       } else {
-        setError(response.data.error || "Invalid credentials. Please try again.");
+        navigate("/user-dashboard");
       }
-    } catch (error) {
-      console.error("Login error:", error);
-      setError("Something went wrong. Try again later.");
+    } else {
+      // Invalid credentials
+      setError("Invalid ID or password. Please try again.");
     }
   };
 
