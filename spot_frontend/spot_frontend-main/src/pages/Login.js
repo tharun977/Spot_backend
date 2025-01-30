@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, TextField, Typography, Card, Divider, FormControl, FormLabel } from "@mui/material";
-import axios from "axios";  // Import axios for API calls
 
 export default function Login({ setRole }) {
   const [userId, setUserId] = useState("");
@@ -9,31 +8,28 @@ export default function Login({ setRole }) {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     setError(null);
 
-    try {
-      // Send API request for authentication
-      const response = await axios.post("http://127.0.0.1:8000/api/login/", {
-        email: userId,
-        password: password,
-      });
+    // Hardcoded login credentials for testing
+    const users = {
+      admin: { userId: "admin", password: "admin123", role: "admin" },
+      staff: { userId: "staff", password: "staff123", role: "staff" },
+      user: { userId: "user", password: "user123", role: "user" },
+    };
 
-      // If login is successful, store the token and user role in localStorage
-      const { token, role } = response.data;
-      localStorage.setItem("authToken", token);  // Save the token
-      localStorage.setItem("userRole", role);    // Save the role
-      setRole(role);                             // Set the role in the app state
-      navigate("/");                             // Redirect to the home page
+    // Check if the entered userId and password match
+    const user = Object.values(users).find(
+      (u) => u.userId === userId && u.password === password
+    );
 
-    } catch (error) {
-      // Handle errors (e.g., invalid credentials)
-      if (error.response && error.response.status === 401) {
-        setError("Invalid ID or password. Please try again.");
-      } else {
-        setError("An error occurred. Please try again.");
-      }
+    if (user) {
+      localStorage.setItem("userRole", user.role); // Store role in localStorage
+      setRole(user.role); // Set role in state
+      navigate("/"); // Redirect to home page
+    } else {
+      setError("Invalid ID or password. Please try again.");
     }
   };
 
