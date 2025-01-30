@@ -6,6 +6,6 @@ from parking import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('parking.urls')),
-    path('', views.homepage, name='homepage'),  # This will map the root URL to your homepage view
+    path('', include('parking.urls')),
+    # path('', views.homepage, name='homepage'),  # This will map the root URL to your homepage view
 ]

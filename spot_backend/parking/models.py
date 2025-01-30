@@ -16,6 +16,9 @@ class User(AbstractUser):
     groups = models.ManyToManyField(Group, related_name="parking_users", blank=True)
     user_permissions = models.ManyToManyField(Permission, related_name="parking_user_permissions", blank=True)
 
+    USERNAME_FIELD = 'email'  # Use email as the login field
+    REQUIRED_FIELDS = ['username']  # Ensure the username is required as an additional field
+
     def __str__(self):
         return self.username
 
@@ -86,6 +89,7 @@ class PaymentDetails(models.Model):
 
 
 class LogDetails(models.Model):
+    id = models.AutoField(primary_key=True)  # Explicitly defining the primary key
     lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE, related_name="logs")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="logs")
     status_before = models.CharField(max_length=50)

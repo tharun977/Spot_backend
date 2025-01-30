@@ -3,7 +3,7 @@ import { Card, CardContent, Typography, Button, TextField, Grid, Modal } from "@
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export default function ParkingPlaces() {
+export default function ParkingPlace() {
   const [parkingSpots, setParkingSpots] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredSpots, setFilteredSpots] = useState([]);
@@ -60,34 +60,40 @@ export default function ParkingPlaces() {
   };
 
   const handleSave = () => {
-    if (editingSpot) {
-      // Update parking place
-      axios
-        .put(`http://127.0.0.1:8000/api/parking-places/${editingSpot.id}/`, newSpot)
-        .then((response) => {
-          const updatedSpots = parkingSpots.map((spot) =>
-            spot.id === editingSpot.id ? response.data : spot
-          );
-          setParkingSpots(updatedSpots);
-          setFilteredSpots(updatedSpots);
-          handleCloseModal();
-        })
-        .catch((error) => {
-          console.error("Error updating parking place:", error);
-        });
-    } else {
-      // Add new parking place
-      axios
-        .post("http://127.0.0.1:8000/api/parking-places/", newSpot)
-        .then((response) => {
-          setParkingSpots((prevState) => [...prevState, response.data]);
-          setFilteredSpots((prevState) => [...prevState, response.data]);
-          handleCloseModal();
-        })
-        .catch((error) => {
-          console.error("Error adding parking place:", error);
-        });
-    }
+    const token = localStorage.getItem('authToken'); // Retrieve token from local storage (or another method)
+
+const headers = {
+  Authorization: `Bearer ${token}`,  // Attach the token to the Authorization header
+};
+
+if (editingSpot) {
+  // Update parking place
+  axios
+    .put(`http://127.0.0.1:8000/api/parking-places/${editingSpot.id}/`, newSpot, { headers })
+    .then((response) => {
+      const updatedSpots = parkingSpots.map((spot) =>
+        spot.id === editingSpot.id ? response.data : spot
+      );
+      setParkingSpots(updatedSpots);
+      setFilteredSpots(updatedSpots);
+      handleCloseModal();
+    })
+    .catch((error) => {
+      console.error("Error updating parking place:", error);
+    });
+} else {
+  // Add new parking place
+  axios
+    .post("http://127.0.0.1:8000/api/parking-places/", newSpot, { headers })
+    .then((response) => {
+      setParkingSpots((prevState) => [...prevState, response.data]);
+      setFilteredSpots((prevState) => [...prevState, response.data]);
+      handleCloseModal();
+    })
+    .catch((error) => {
+      console.error("Error adding parking place:", error);
+    });
+}
   };
 
   return (
