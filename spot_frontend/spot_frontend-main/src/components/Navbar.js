@@ -1,34 +1,37 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Button } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 export default function Navbar({ setRole }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
-    localStorage.removeItem("userRole"); // Clear stored role
-    setRole(null); // Reset role state
-    navigate("/login"); // Redirect to login page
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("userRole");
+    setRole(null);
+    navigate("/login"); // Redirect after logout
   };
 
   return (
-    <AppBar position="static" style={styles.navbar}>
-      <Toolbar style={styles.toolbar}>
+    <AppBar position="static" sx={styles.navbar}>
+      <Toolbar sx={styles.toolbar}>
         {/* Branding - SPOT */}
-        <Typography variant="h6" style={styles.brand}>
+        <Typography variant="h6" sx={styles.brand}>
           SPOT
         </Typography>
 
         {/* Navigation Links */}
         <div style={styles.linksContainer}>
-          <Link to="/" style={styles.link}>Home</Link>
-          <Link to="/parking-places" style={styles.link}>Parking Places</Link>
-          <Link to="/payments" style={styles.link}>Payments</Link>
-          <Link to="/logs" style={styles.link}>Logs</Link>
+          <NavLink to="/" label="Home" location={location} />
+          <NavLink to="/parking-places" label="Parking Places" location={location} />
+          <NavLink to="/payments" label="Payments" location={location} />
+          <NavLink to="/logs" label="Logs" location={location} />
         </div>
 
         {/* Logout Button */}
-        <Button color="inherit" onClick={handleLogout} style={styles.logoutButton}>
+        <Button color="inherit" onClick={handleLogout} sx={styles.logoutButton}>
           Logout
         </Button>
       </Toolbar>
@@ -36,15 +39,27 @@ export default function Navbar({ setRole }) {
   );
 }
 
+// Custom NavLink component with active state
+const NavLink = ({ to, label, location }) => (
+  <Link to={to} style={{ 
+    ...styles.link, 
+    borderBottom: location.pathname === to ? "2px solid #fff" : "none" 
+  }}>
+    {label}
+  </Link>
+);
+
+// Styling object
 const styles = {
   navbar: {
-    background: "#222", // Dark theme for contrast
+    background: "#1E1E1E",
+    boxShadow: "none",
   },
   toolbar: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: "10px 30px", // Balanced spacing
+    padding: "10px 30px",
   },
   brand: {
     fontWeight: "bold",
@@ -53,14 +68,14 @@ const styles = {
   },
   linksContainer: {
     display: "flex",
-    gap: "20px", // Ensures proper spacing between links
+    gap: "20px",
   },
   link: {
-    color: "white",
+    color: "#FFFFFF",
     textDecoration: "none",
     fontSize: "16px",
     fontWeight: "500",
-    padding: "8px 15px", // Adds a small clickable area
+    padding: "8px 15px",
     transition: "color 0.3s ease",
   },
   logoutButton: {
@@ -69,3 +84,4 @@ const styles = {
     marginLeft: "20px",
   },
 };
+

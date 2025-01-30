@@ -1,92 +1,55 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, TextField, Typography, Card, Divider, FormControl, FormLabel } from "@mui/material";
 
-export default function Login({ setRole }) {
-  const [userId, setUserId] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
+const Login = ({ setRole }) => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    setError(null);
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post("http://127.0.0.1:8000/api/login/", { email, password });
+            localStorage.setItem("accessToken", response.data.access);
+            localStorage.setItem("refreshToken", response.data.refresh);
+            localStorage.setItem("user", JSON.stringify(response.data.user));
 
-    // Hardcoded login credentials for testing
-    const users = {
-      admin: { userId: "admin", password: "admin123", role: "admin" },
-      staff: { userId: "staff", password: "staff123", role: "staff" },
-      user: { userId: "user", password: "user123", role: "user" },
+            // Get the user role and set it in localStorage
+            const userRole = response.data.user.role;  // Assuming response contains the user role
+            localStorage.setItem("userRole", userRole);
+            setRole(userRole);  // Update the role state after login
+
+            navigate("/");  // Redirect to the home page after successful login
+        } catch (err) {
+            setError("Invalid email or password");
+        }
     };
 
-    // Check if the entered userId and password match
-    const user = Object.values(users).find(
-      (u) => u.userId === userId && u.password === password
+    return (
+        <div className="login-container">
+            <h2>Login</h2>
+            <form onSubmit={handleLogin}>
+                <input 
+                    type="email" 
+                    placeholder="Email" 
+                    value={email} 
+                    onChange={(e) => setEmail(e.target.value)} 
+                    required 
+                />
+                <input 
+                    type="password" 
+                    placeholder="Password" 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    required 
+                />
+                <button type="submit">Login</button>
+            </form>
+            {error && <p className="error">{error}</p>}
+        </div>
     );
+};
 
-    if (user) {
-      localStorage.setItem("userRole", user.role); // Store role in localStorage
-      setRole(user.role); // Set role in state
-      navigate("/"); // Redirect to home page
-    } else {
-      setError("Invalid ID or password. Please try again.");
-    }
-  };
-
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        backgroundColor: "#f4f6f8",
-      }}
-    >
-      <Card sx={{ padding: 3, maxWidth: 400, width: "100%" }}>
-        <Typography variant="h4" align="center" sx={{ marginBottom: 2 }}>
-          Login
-        </Typography>
-        <form onSubmit={handleLogin}>
-          <FormControl fullWidth margin="normal">
-            <FormLabel htmlFor="userId">User ID</FormLabel>
-            <TextField
-              id="userId"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              required
-              fullWidth
-              variant="outlined"
-              placeholder="Enter your user ID"
-            />
-          </FormControl>
-          <FormControl fullWidth margin="normal">
-            <FormLabel htmlFor="password">Password</FormLabel>
-            <TextField
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              fullWidth
-              variant="outlined"
-              placeholder="Enter your password"
-            />
-          </FormControl>
-          {error && <Typography color="error" align="center" sx={{ marginTop: 1 }}>{error}</Typography>}
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            sx={{ marginTop: 2 }}
-          >
-            Login
-          </Button>
-        </form>
-        <Divider sx={{ marginTop: 2 }} />
-        {/* Optional: Include Forgot Password Link if needed */}
-        {/* <Link href="/forgot-password" variant="body2" sx={{ display: "block", textAlign: "center", marginTop: 2 }}>Forgot Password?</Link> */}
-      </Card>
-    </Box>
-  );
-}
+export default Login;

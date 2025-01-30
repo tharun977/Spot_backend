@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view , permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
@@ -19,27 +19,31 @@ def homepage(request):
 
 # Login view for user authentication
 @api_view(['POST'])
+@permission_classes([AllowAny])  # Allow anyone to access this API
 def login(request):
-    user_id = request.data.get('user_id')
+    email = request.data.get('email')  # Use email instead of user_id
     password = request.data.get('password')
 
-    if not user_id or not password:
-        return Response({"error": "Both user ID and password are required"}, status=400)
+    if not email or not password:
+        return Response({"error": "Both email and password are required"}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Authenticate the user
-    user = authenticate(username=user_id, password=password)
+    # Authenticate user
+    user = authenticate(email=email, password=password)  # Ensure email is used in `AUTH_USER_MODEL`
     
     if user is not None:
-        # User is authenticated, get the role
-        role = user.role  # assuming the role field is part of the User model
-        tokens = get_tokens_for_user(user)  # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
         return Response({
-            "success": True,
-            "role": role,
-            "tokens": tokens
-        })
-    else:
-        return Response({"success": False, "error": "Invalid credentials"}, status=401)
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "name": user.get_full_name(),
+                "role": user.role  # Assuming your User model has a 'role' field
+            }
+        }, status=status.HTTP_200_OK)
+    
+    return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 # Helper function to generate JWT tokens
 def get_tokens_for_user(user):
