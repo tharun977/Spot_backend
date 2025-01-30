@@ -20,7 +20,7 @@ export default function Navbar({ setRole }) {
         </Typography>
 
         {/* Navigation Links */}
-        <div style={styles.links}>
+        <div style={styles.linksContainer}>
           <Link to="/" style={styles.link}>Home</Link>
           <Link to="/parking-places" style={styles.link}>Parking Places</Link>
           <Link to="/payments" style={styles.link}>Payments</Link>
@@ -38,29 +38,34 @@ export default function Navbar({ setRole }) {
 
 const styles = {
   navbar: {
-    background: "#333", // Dark theme
+    background: "#222", // Dark theme for contrast
   },
   toolbar: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    width: "100%",
-    padding: "0 20px", // Ensures spacing
+    padding: "10px 30px", // Balanced spacing
   },
   brand: {
     fontWeight: "bold",
-    fontSize: "24px",
+    fontSize: "22px",
+    letterSpacing: "1px",
   },
-  links: {
+  linksContainer: {
     display: "flex",
-    gap: "30px", // Ensures proper spacing
+    gap: "20px", // Ensures proper spacing between links
   },
   link: {
     color: "white",
     textDecoration: "none",
-    fontSize: "18px",
+    fontSize: "16px",
+    fontWeight: "500",
+    padding: "8px 15px", // Adds a small clickable area
+    transition: "color 0.3s ease",
   },
   logoutButton: {
-    marginLeft: "30px",
+    fontSize: "16px",
+    fontWeight: "500",
+    marginLeft: "20px",
   },
 };
