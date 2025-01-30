@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     UserViewSet, VehicleTypeViewSet, ParkingPlaceViewSet, ParkingLotViewSet,
     ParkingDetailsViewSet, PaymentDetailsViewSet, LogDetailsViewSet, 
-    get_parking_places, get_payments, login  # Import login view
+    get_parking_places, get_payments, login  # Ensure this is an API view
 )
 
 # Initialize the router for viewsets
@@ -17,8 +17,8 @@ router.register(r'payment-details', PaymentDetailsViewSet)
 router.register(r'log-details', LogDetailsViewSet)
 
 urlpatterns = [
-    path('api/', include(router.urls)),  # Register all viewsets
-    path('parking-places/', get_parking_places, name='parking-places'),
+    path('api/', include(router.urls)),  # Keep all endpoints under /api/
+    path('api/parking-places/', get_parking_places, name='parking-places'),  # Ensure uniform API structure
     path('api/payments/', get_payments, name='get-payments'),
-    path('api/login/', login, name='login'),  # Add the login path here
+    path('api/login/', login, name='login'),  # Keep login under /api/
 ]

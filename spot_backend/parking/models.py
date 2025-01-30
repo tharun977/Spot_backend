@@ -1,74 +1,96 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.utils import timezone
 
-class User(models.Model):
-    user_id = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=100, unique=True)
-    password = models.CharField(max_length=100)
-    role = models.CharField(max_length=50)
-    full_name = models.CharField(max_length=150)
-    contact_number = models.CharField(max_length=15)
+# Custom User Model (Extends Django's built-in User)
+class User(AbstractUser):
+    ROLE_CHOICES = [
+        ('admin', 'Admin'),
+        ('user', 'User'),
+    ]
+    role = models.CharField(max_length=50, choices=ROLE_CHOICES, default='user')
+    contact_number = models.CharField(max_length=15, unique=True)
     email = models.EmailField(unique=True)
+
+    # Prevent conflicts with Django’s default User model
+    groups = models.ManyToManyField(Group, related_name="parking_users", blank=True)
+    user_permissions = models.ManyToManyField(Permission, related_name="parking_user_permissions", blank=True)
 
     def __str__(self):
         return self.username
 
+
 class VehicleType(models.Model):
-    vehicle_type_id = models.AutoField(primary_key=True)
-    vehicle_type = models.CharField(max_length=50)
+    vehicle_type = models.CharField(max_length=50, unique=True)
     parking_fee = models.DecimalField(max_digits=6, decimal_places=2)
 
     def __str__(self):
         return self.vehicle_type
 
+
 class ParkingPlace(models.Model):
-    place_id = models.AutoField(primary_key=True)
-    place_name = models.CharField(max_length=100)
+    place_name = models.CharField(max_length=100, unique=True)
     location = models.CharField(max_length=250)
-    capacity = models.IntegerField()
+    capacity = models.PositiveIntegerField()
 
     def __str__(self):
         return self.place_name
 
+
 class ParkingLot(models.Model):
-    lot_id = models.AutoField(primary_key=True)
-    place = models.ForeignKey(ParkingPlace, on_delete=models.CASCADE)
+    STATUS_CHOICES = [
+        ('available', 'Available'),
+        ('occupied', 'Occupied'),
+        ('reserved', 'Reserved'),
+    ]
+    place = models.ForeignKey(ParkingPlace, on_delete=models.CASCADE, related_name="lots")
     vehicle_type = models.ForeignKey(VehicleType, on_delete=models.CASCADE)
-    status = models.CharField(max_length=50)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='available')
 
     def __str__(self):
-        return f"Lot {self.lot_id} in {self.place.place_name}"
+        return f"Lot {self.id} in {self.place.place_name}"
+
 
 class ParkingDetails(models.Model):
-    parking_id = models.AutoField(primary_key=True)
-    lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE)
-    vehicle_reg_no = models.CharField(max_length=50)
+    lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE, related_name="parkings")
+    vehicle_reg_no = models.CharField(max_length=50, unique=True)
     mobile_number = models.CharField(max_length=15)
     vehicle_type = models.ForeignKey(VehicleType, on_delete=models.CASCADE)
-    in_time = models.DateTimeField()
+    in_time = models.DateTimeField(default=timezone.now)
     out_time = models.DateTimeField(null=True, blank=True)
-    payment_status = models.CharField(max_length=50)
-    parking_duration = models.DurationField()
+    payment_status = models.BooleanField(default=False)
     occupied_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
+    @property
+    def parking_duration(self):
+        if self.out_time:
+            return self.out_time - self.in_time
+        return None
+
     def __str__(self):
-        return f"Parking {self.parking_id}"
+        return f"Parking {self.id} for {self.vehicle_reg_no}"
+
 
 class PaymentDetails(models.Model):
-    payment_id = models.AutoField(primary_key=True)
-    parking = models.ForeignKey(ParkingDetails, on_delete=models.CASCADE)
-    payment_method = models.CharField(max_length=50)
-    payment_date = models.DateTimeField()
+    PAYMENT_METHOD_CHOICES = [
+        ('cash', 'Cash'),
+        ('card', 'Card'),
+        ('online', 'Online'),
+    ]
+    parking = models.OneToOneField(ParkingDetails, on_delete=models.CASCADE, related_name="payment")
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES)
+    payment_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"Payment {self.payment_id}"
+        return f"Payment {self.id} - {self.parking.vehicle_reg_no}"
+
 
 class LogDetails(models.Model):
-    log_id = models.AutoField(primary_key=True)
-    lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE, related_name="logs")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="logs")
     status_before = models.CharField(max_length=50)
     status_after = models.CharField(max_length=50)
-    timestamp = models.DateTimeField()
+    timestamp = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"Log {self.log_id}"
+        return f"Log {self.id} - {self.lot} by {self.user.username}"
