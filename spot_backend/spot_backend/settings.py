@@ -15,7 +15,6 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']  # This allows any host. Change this for production security!
 
 # Application definition
-
 INSTALLED_APPS = [
     'corsheaders',
     'django.contrib.admin',
@@ -49,7 +48,7 @@ ROOT_URLCONF = 'spot_backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [],  # You can add template directories here if you need custom templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -104,14 +103,18 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']  # Custom static files
+STATIC_URL = '/static/'  # URL where static files will be served
 
-# Define paths for static files in production
-STATICFILES_DIRS = [BASE_DIR / 'static']  # Add static files directory
+# For collecting static files into a directory for production
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Collected static files will be stored here
 
 # Media files (uploads)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'  # The URL for serving media files
+MEDIA_ROOT = BASE_DIR / 'media'  # The local directory where uploaded files will be stored
+
+# Ensure that the 'media' directory exists inside the project folder
+# Create the 'media' directory if it doesn't exist.
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

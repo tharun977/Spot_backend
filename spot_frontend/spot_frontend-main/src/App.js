@@ -6,6 +6,7 @@ import ParkingPlaces from "./pages/ParkingPlaces";
 import Payments from "./pages/Payments";
 import Logs from "./pages/Logs";
 import Login from "./pages/Login";
+import Register from "./pages/Register";  // Import Register page
 
 export default function App() {
     const [role, setRole] = useState(localStorage.getItem("userRole") || null);
@@ -23,6 +24,7 @@ export default function App() {
             {role && <Navbar setRole={setRole} />}
             <Routes>
                 <Route path="/login" element={<Login setRole={setRole} />} />
+                <Route path="/register" element={<Register />} />  {/* Register route */}
                 <Route 
                     path="/" 
                     element={role ? <Home role={role} /> : <Navigate to="/login" />} 

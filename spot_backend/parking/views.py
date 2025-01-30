@@ -1,17 +1,18 @@
 from rest_framework import viewsets
-from rest_framework.decorators import api_view , permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.views import APIView
 from rest_framework import status
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import HttpResponse
-from .models import User, VehicleType, ParkingPlace, ParkingLot, ParkingDetails, PaymentDetails, LogDetails
 from .serializers import (
     UserSerializer, VehicleTypeSerializer, ParkingPlaceSerializer, ParkingLotSerializer,
-    ParkingDetailsSerializer, PaymentDetailsSerializer, LogDetailsSerializer
+    ParkingDetailsSerializer, PaymentDetailsSerializer, LogDetailsSerializer, RegisterSerializer
 )
+from .models import VehicleType, ParkingPlace, ParkingLot, ParkingDetails, PaymentDetails, LogDetails ,User
+from rest_framework.views import APIView
 
 # Homepage view
 def homepage(request):
@@ -21,14 +22,13 @@ def homepage(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Allow anyone to access this API
 def login(request):
-    email = request.data.get('email')  # Use email instead of user_id
+    email = request.data.get('email')  # Use email for authentication
     password = request.data.get('password')
 
     if not email or not password:
         return Response({"error": "Both email and password are required"}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Authenticate user
-    user = authenticate(email=email, password=password)  # Ensure email is used in `AUTH_USER_MODEL`
+    user = authenticate(request, username=email, password=password)
     
     if user is not None:
         refresh = RefreshToken.for_user(user)
@@ -54,23 +54,52 @@ def get_tokens_for_user(user):
     }
 
 # User viewset
+
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.all()  # Ensure this references your custom User model
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]  # Use IsAuthenticated for securing this view
+    permission_classes = [IsAuthenticated]  # Secure this view with authentication
+
+# Registration view to create a new user
+@api_view(['POST'])
+@permission_classes([AllowAny])  # Open to everyone for creating accounts
+def register(request):
+    # Get user data from request
+    serializer = RegisterSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        # Create the new user
+        user = serializer.save()
+        
+        # Generate JWT tokens for the newly registered user
+        tokens = get_tokens_for_user(user)
+        
+        return Response({
+            "access": tokens['access'],
+            "refresh": tokens['refresh'],
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "name": user.get_full_name(),
+                "role": user.role
+            }
+        }, status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # VehicleType viewset
 class VehicleTypeViewSet(viewsets.ModelViewSet):
     queryset = VehicleType.objects.all()
     serializer_class = VehicleTypeSerializer
-    permission_classes = [AllowAny]  # Anyone can access vehicle types
+    permission_classes = [AllowAny]  # Open access for vehicle types
 
-# ParkingPlace viewset
+# ParkingPlace viewset with CRUD functionality
 class ParkingPlaceViewSet(viewsets.ModelViewSet):
     queryset = ParkingPlace.objects.all()
     serializer_class = ParkingPlaceSerializer
-    permission_classes = [IsAuthenticated]  # Requires user to be authenticated
+    permission_classes = [IsAuthenticated]  # Requires user authentication
 
+# ParkingPlace APIView for list and creation
 class ParkingPlaceListCreateView(APIView):
     permission_classes = [IsAuthenticated]  # Protect this view with authentication
 
@@ -88,8 +117,8 @@ class ParkingPlaceListCreateView(APIView):
 
 # Function-based API for fetching parking places
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])  # Ensure user is authenticated
 def get_parking_places(request):
-    permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
     parking_places = ParkingPlace.objects.all()
     serializer = ParkingPlaceSerializer(parking_places, many=True)
     return Response(serializer.data)
@@ -114,8 +143,8 @@ class PaymentDetailsViewSet(viewsets.ModelViewSet):
 
 # Function-based API for fetching payments
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])  # Ensure user is authenticated
 def get_payments(request):
-    permission_classes = [IsAuthenticated]  # Ensure user is authenticated
     payments = PaymentDetails.objects.all()
     serializer = PaymentDetailsSerializer(payments, many=True)
     return Response(serializer.data)

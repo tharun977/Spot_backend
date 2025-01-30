@@ -1,11 +1,13 @@
 from rest_framework import serializers
-from .models import User, VehicleType, ParkingPlace, ParkingLot, ParkingDetails, PaymentDetails, LogDetails
+from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from .models import VehicleType, ParkingPlace, ParkingLot, ParkingDetails, PaymentDetails, LogDetails
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)  # Ensure password is not exposed in API responses
 
     class Meta:
-        model = User
+        model = User  # This should now refer to your custom model
         fields = '__all__'
         extra_kwargs = {
             'password': {'write_only': True},
@@ -52,3 +54,24 @@ class LogDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = LogDetails
         fields = '__all__'
+
+
+# New RegisterSerializer for User Registration
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password_confirm = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password', 'password_confirm']
+
+    def validate(self, attrs):
+        # Check if passwords match
+        if attrs['password'] != attrs['password_confirm']:
+            raise serializers.ValidationError({"password": "Passwords must match."})
+        return attrs
+
+    def create(self, validated_data):
+        validated_data.pop('password_confirm')  # Remove the confirm password field
+        user = User.objects.create_user(**validated_data)  # Create user and hash password
+        return user

@@ -10,17 +10,20 @@ class User(AbstractUser):
     ]
     role = models.CharField(max_length=50, choices=ROLE_CHOICES, default='user')
     contact_number = models.CharField(max_length=15, unique=True)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True)  # Ensure this is unique
 
-    # Prevent conflicts with Django’s default User model
     groups = models.ManyToManyField(Group, related_name="parking_users", blank=True)
     user_permissions = models.ManyToManyField(Permission, related_name="parking_user_permissions", blank=True)
 
-    USERNAME_FIELD = 'email'  # Use email as the login field
+    USERNAME_FIELD = 'email'  # Make sure email is used for login
     REQUIRED_FIELDS = ['username']  # Ensure the username is required as an additional field
 
     def __str__(self):
         return self.username
+
+    class Meta:
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
 
 
 class VehicleType(models.Model):
@@ -30,6 +33,10 @@ class VehicleType(models.Model):
     def __str__(self):
         return self.vehicle_type
 
+    class Meta:
+        verbose_name = 'Vehicle Type'
+        verbose_name_plural = 'Vehicle Types'
+
 
 class ParkingPlace(models.Model):
     place_name = models.CharField(max_length=100, unique=True)
@@ -38,6 +45,10 @@ class ParkingPlace(models.Model):
 
     def __str__(self):
         return self.place_name
+
+    class Meta:
+        verbose_name = 'Parking Place'
+        verbose_name_plural = 'Parking Places'
 
 
 class ParkingLot(models.Model):
@@ -52,6 +63,10 @@ class ParkingLot(models.Model):
 
     def __str__(self):
         return f"Lot {self.id} in {self.place.place_name}"
+
+    class Meta:
+        verbose_name = 'Parking Lot'
+        verbose_name_plural = 'Parking Lots'
 
 
 class ParkingDetails(models.Model):
@@ -73,6 +88,10 @@ class ParkingDetails(models.Model):
     def __str__(self):
         return f"Parking {self.id} for {self.vehicle_reg_no}"
 
+    class Meta:
+        verbose_name = 'Parking Detail'
+        verbose_name_plural = 'Parking Details'
+
 
 class PaymentDetails(models.Model):
     PAYMENT_METHOD_CHOICES = [
@@ -87,6 +106,10 @@ class PaymentDetails(models.Model):
     def __str__(self):
         return f"Payment {self.id} - {self.parking.vehicle_reg_no}"
 
+    class Meta:
+        verbose_name = 'Payment Detail'
+        verbose_name_plural = 'Payment Details'
+
 
 class LogDetails(models.Model):
     id = models.AutoField(primary_key=True)  # Explicitly defining the primary key
@@ -98,3 +121,7 @@ class LogDetails(models.Model):
 
     def __str__(self):
         return f"Log {self.id} - {self.lot} by {self.user.username}"
+
+    class Meta:
+        verbose_name = 'Log Detail'
+        verbose_name_plural = 'Log Details'

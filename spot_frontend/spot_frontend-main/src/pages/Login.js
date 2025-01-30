@@ -16,29 +16,31 @@ const Login = ({ setRole }) => {
             localStorage.setItem("refreshToken", response.data.refresh);
             localStorage.setItem("user", JSON.stringify(response.data.user));
 
-            // Get the user role and set it in localStorage
             const userRole = response.data.user.role;
             localStorage.setItem("userRole", userRole);
-            setRole(userRole); // Update the role state after login
+            setRole(userRole);
 
-            navigate("/");  // Redirect to the home page after successful login
+            navigate("/");  // Redirect to home page
         } catch (err) {
             setError("Invalid email or password");
         }
     };
 
-    // Inline styles for a modern login page design
+    const navigateToRegister = () => {
+        navigate("/register");
+    };
+
     const styles = {
         container: {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             height: "100vh",
-            background: "linear-gradient(to right, #4facfe, #00f2fe)",  // Background gradient
+            background: "linear-gradient(to right, #4facfe, #00f2fe)", 
             fontFamily: "'Arial', sans-serif",
         },
         formContainer: {
-            background: "rgba(255, 255, 255, 0.9)",  // Semi-transparent background
+            background: "rgba(255, 255, 255, 0.9)",  
             padding: "40px",
             borderRadius: "8px",
             boxShadow: "0 5px 15px rgba(0, 0, 0, 0.2)",
@@ -63,9 +65,6 @@ const Login = ({ setRole }) => {
             boxSizing: "border-box",
             transition: "border 0.3s ease",
         },
-        inputFocus: {
-            borderColor: "#4facfe",
-        },
         button: {
             width: "100%",
             padding: "14px",
@@ -77,14 +76,22 @@ const Login = ({ setRole }) => {
             cursor: "pointer",
             transition: "background-color 0.3s ease",
         },
-        buttonHover: {
-            backgroundColor: "#00f2fe",
-        },
         error: {
             color: "red",
             fontSize: "1rem",
             marginTop: "15px",
         },
+        registerButton: {
+            marginTop: "15px",
+            padding: "10px",
+            backgroundColor: "#4facfe",
+            border: "none",
+            borderRadius: "5px",
+            color: "white",
+            cursor: "pointer",
+            fontSize: "1rem",
+            transition: "background-color 0.3s ease",
+        }
     };
 
     return (
@@ -111,13 +118,17 @@ const Login = ({ setRole }) => {
                     <button
                         type="submit"
                         style={styles.button}
-                        onMouseEnter={(e) => (e.target.style.backgroundColor = styles.buttonHover.backgroundColor)}
-                        onMouseLeave={(e) => (e.target.style.backgroundColor = styles.button.backgroundColor)}
                     >
                         Login
                     </button>
                 </form>
                 {error && <p style={styles.error}>{error}</p>}
+                <button
+                    style={styles.registerButton}
+                    onClick={navigateToRegister}
+                >
+                    Register
+                </button>
             </div>
         </div>
     );
