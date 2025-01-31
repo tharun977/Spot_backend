@@ -18,7 +18,7 @@ export default function Navbar({ setRole }) {
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("userRole");
     setIsAuth(false);
-    navigate("/login");
+    navigate("/");
   };
 
   return (
@@ -31,7 +31,7 @@ export default function Navbar({ setRole }) {
 
         {/* Navigation Links */}
         <div style={styles.linksContainer}>
-          {isAuth && <NavLink to="/" label="Home" location={location} />}
+          {isAuth && <NavLink to="/home" label="Home" location={location} />}
           {isAuth && <NavLink to="/parking-places" label="Parking Places" location={location} />}
           {isAuth && <NavLink to="/payments" label="Payments" location={location} />}
           {isAuth && <NavLink to="/logs" label="Logs" location={location} />}

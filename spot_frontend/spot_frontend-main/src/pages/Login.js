@@ -39,7 +39,7 @@ export const Login = () => {
             axios.defaults.headers.common['Authorization'] = `Bearer ${data.access}`;
 
             // Redirect to homepage
-            navigate('/');  // Use navigate hook instead of window.location.href
+            navigate('/home');  // Use navigate hook instead of window.location.href
         } catch (err) {
             setError("Invalid username or password");  // Error handling
         }

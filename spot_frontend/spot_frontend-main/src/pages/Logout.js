@@ -6,7 +6,7 @@ const Logout = () => {
 
     useEffect(() => {
         localStorage.clear();
-        navigate("/login");
+        navigate("/");
     }, [navigate]);
 
     return <h2>Logging out...</h2>;
