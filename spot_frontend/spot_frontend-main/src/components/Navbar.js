@@ -8,16 +8,15 @@ export default function Navbar({ setRole }) {
   const [isAuth, setIsAuth] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem("accessToken") !== null) {
+    if (localStorage.getItem("access_token") !== null) {
       setIsAuth(true);
     }
-  }, []);
+  }, [isAuth]);
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("userRole");
-    setRole(null);
     setIsAuth(false);
     navigate("/login");
   };
