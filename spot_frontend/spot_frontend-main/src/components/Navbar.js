@@ -1,39 +1,55 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { AppBar, Toolbar, Typography, Button } from "@mui/material";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
 export default function Navbar({ setRole }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isAuth, setIsAuth] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem("accessToken") !== null) {
+      setIsAuth(true);
+    }
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("userRole");
     setRole(null);
-    navigate("/login"); // Redirect after logout
+    setIsAuth(false);
+    navigate("/login");
   };
 
   return (
     <AppBar position="static" sx={styles.navbar}>
       <Toolbar sx={styles.toolbar}>
-        {/* Branding - SPOT */}
+        {/* Branding */}
         <Typography variant="h6" sx={styles.brand}>
           SPOT
         </Typography>
 
         {/* Navigation Links */}
         <div style={styles.linksContainer}>
-          <NavLink to="/" label="Home" location={location} />
-          <NavLink to="/parking-places" label="Parking Places" location={location} />
-          <NavLink to="/payments" label="Payments" location={location} />
-          <NavLink to="/logs" label="Logs" location={location} />
+          {isAuth && <NavLink to="/" label="Home" location={location} />}
+          {isAuth && <NavLink to="/parking-places" label="Parking Places" location={location} />}
+          {isAuth && <NavLink to="/payments" label="Payments" location={location} />}
+          {isAuth && <NavLink to="/logs" label="Logs" location={location} />}
         </div>
 
-        {/* Logout Button */}
-        <Button color="inherit" onClick={handleLogout} sx={styles.logoutButton}>
-          Logout
-        </Button>
+        {/* Authentication Buttons */}
+        <div>
+          {isAuth ? (
+            <Button color="inherit" onClick={handleLogout} sx={styles.logoutButton}>
+              Logout
+            </Button>
+          ) : (
+            <Button color="inherit" component={Link} to="/login" sx={styles.loginButton}>
+              Login
+            </Button>
+          )}
+        </div>
       </Toolbar>
     </AppBar>
   );
@@ -41,10 +57,13 @@ export default function Navbar({ setRole }) {
 
 // Custom NavLink component with active state
 const NavLink = ({ to, label, location }) => (
-  <Link to={to} style={{ 
-    ...styles.link, 
-    borderBottom: location.pathname === to ? "2px solid #fff" : "none" 
-  }}>
+  <Link
+    to={to}
+    style={{
+      ...styles.link,
+      borderBottom: location.pathname === to ? "2px solid #fff" : "none",
+    }}
+  >
     {label}
   </Link>
 );
@@ -83,5 +102,8 @@ const styles = {
     fontWeight: "500",
     marginLeft: "20px",
   },
+  loginButton: {
+    fontSize: "16px",
+    fontWeight: "500",
+  },
 };
-

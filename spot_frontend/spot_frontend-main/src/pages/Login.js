@@ -1,137 +1,87 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // Importing navigate from react-router-dom
 
-const Login = ({ setRole }) => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const navigate = useNavigate();
+export const Login = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');  // To handle errors
+    const navigate = useNavigate();  // Hook to navigate after successful login
 
-    const handleLogin = async (e) => {
+    // Submit function
+    const submit = async e => {
         e.preventDefault();
+        const user = {
+            username: username,
+            password: password,
+        };
+
         try {
-            const response = await axios.post("http://127.0.0.1:8000/api/login/", { email, password });
-            localStorage.setItem("accessToken", response.data.access);
-            localStorage.setItem("refreshToken", response.data.refresh);
-            localStorage.setItem("user", JSON.stringify(response.data.user));
+            // Create the POST request for token
+            const { data } = await axios.post(
+                'http://localhost:8000/token/',
+                user,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    withCredentials: true, // Correct placement for withCredentials
+                }
+            );
 
-            const userRole = response.data.user.role;
-            localStorage.setItem("userRole", userRole);
-            setRole(userRole);
+            // Clear any previous tokens
+            localStorage.clear();
+            // Set the new access and refresh tokens
+            localStorage.setItem('access_token', data.access);
+            localStorage.setItem('refresh_token', data.refresh);
 
-            navigate("/");  // Redirect to home page
+            // Set the Authorization header for all future axios requests
+            axios.defaults.headers.common['Authorization'] = `Bearer ${data.access}`;
+
+            // Redirect to homepage
+            navigate('/');  // Use navigate hook instead of window.location.href
         } catch (err) {
-            setError("Invalid email or password");
-        }
-    };
-
-    const navigateToRegister = () => {
-        navigate("/register");
-    };
-
-    const styles = {
-        container: {
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100vh",
-            background: "linear-gradient(to right, #4facfe, #00f2fe)", 
-            fontFamily: "'Arial', sans-serif",
-        },
-        formContainer: {
-            background: "rgba(255, 255, 255, 0.9)",  
-            padding: "40px",
-            borderRadius: "8px",
-            boxShadow: "0 5px 15px rgba(0, 0, 0, 0.2)",
-            textAlign: "center",
-            width: "100%",
-            maxWidth: "400px",
-        },
-        title: {
-            marginBottom: "30px",
-            fontSize: "2rem",
-            color: "#333",
-            fontWeight: "600",
-        },
-        input: {
-            width: "100%",
-            padding: "12px",
-            marginBottom: "15px",
-            borderRadius: "5px",
-            border: "1px solid #ccc",
-            fontSize: "1rem",
-            outline: "none",
-            boxSizing: "border-box",
-            transition: "border 0.3s ease",
-        },
-        button: {
-            width: "100%",
-            padding: "14px",
-            backgroundColor: "#4facfe",
-            border: "none",
-            borderRadius: "5px",
-            color: "white",
-            fontSize: "1.2rem",
-            cursor: "pointer",
-            transition: "background-color 0.3s ease",
-        },
-        error: {
-            color: "red",
-            fontSize: "1rem",
-            marginTop: "15px",
-        },
-        registerButton: {
-            marginTop: "15px",
-            padding: "10px",
-            backgroundColor: "#4facfe",
-            border: "none",
-            borderRadius: "5px",
-            color: "white",
-            cursor: "pointer",
-            fontSize: "1rem",
-            transition: "background-color 0.3s ease",
+            setError("Invalid username or password");  // Error handling
         }
     };
 
     return (
-        <div style={styles.container}>
-            <div style={styles.formContainer}>
-                <h2 style={styles.title}>Login</h2>
-                <form onSubmit={handleLogin}>
-                    <input 
-                        style={styles.input} 
-                        type="email" 
-                        placeholder="Email" 
-                        value={email} 
-                        onChange={(e) => setEmail(e.target.value)} 
-                        required 
-                    />
-                    <input 
-                        style={styles.input} 
-                        type="password" 
-                        placeholder="Password" 
-                        value={password} 
-                        onChange={(e) => setPassword(e.target.value)} 
-                        required 
-                    />
-                    <button
-                        type="submit"
-                        style={styles.button}
-                    >
-                        Login
-                    </button>
-                </form>
-                {error && <p style={styles.error}>{error}</p>}
-                <button
-                    style={styles.registerButton}
-                    onClick={navigateToRegister}
-                >
-                    Register
-                </button>
-            </div>
+        <div className="Auth-form-container">
+            <form className="Auth-form" onSubmit={submit}>
+                <div className="Auth-form-content">
+                    <h3 className="Auth-form-title">Sign In</h3>
+                    {error && <p style={{ color: 'red' }}>{error}</p>}  {/* Display error message */}
+                    <div className="form-group mt-3">
+                        <label>Username</label>
+                        <input
+                            className="form-control mt-1"
+                            placeholder="Enter Username"
+                            name="username"
+                            type="text"
+                            value={username}
+                            required
+                            onChange={(e) => setUsername(e.target.value)}
+                        />
+                    </div>
+                    <div className="form-group mt-3">
+                        <label>Password</label>
+                        <input
+                            name="password"
+                            type="password"
+                            className="form-control mt-1"
+                            placeholder="Enter password"
+                            value={password}
+                            required
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                    </div>
+                    <div className="d-grid gap-2 mt-3">
+                        <button type="submit" className="btn btn-primary">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     );
 };
-
-export default Login;
