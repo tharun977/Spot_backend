@@ -16,20 +16,22 @@ function App() {
     }
   }, [role]);
 
+
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        
+        {/* Protected Routes inside Navbar layout */}
         <Route element={<Navbar />}>
           <Route path="/home" element={<Home />} />
-
-
-
         </Route>
-        {/* <Route path="/logout" element={<Logout/>}/> */}
+
+        {/* Add other routes here */}
       </Routes>
     </BrowserRouter>
   );
 }
 
 export default App;
+  

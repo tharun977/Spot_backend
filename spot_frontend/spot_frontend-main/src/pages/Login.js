@@ -1,47 +1,46 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Importing navigate from react-router-dom
+import { useNavigate } from "react-router-dom";
 
 export const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');  // To handle errors
+    const [loading, setLoading] = useState(false); // Loading state for UI
     const navigate = useNavigate();  // Hook to navigate after successful login
 
     // Submit function
-    const submit = async e => {
+    const submit = async (e) => {
         e.preventDefault();
-        const user = {
-            username: username,
-            password: password,
-        };
+        const user = { username, password };
+
+        setLoading(true);  // Start loading state
 
         try {
-            // Create the POST request for token
+            // Send POST request to get tokens
             const { data } = await axios.post(
                 'http://localhost:8000/token/',
                 user,
                 {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    withCredentials: true, // Correct placement for withCredentials
+                    headers: { 'Content-Type': 'application/json' },
+                    withCredentials: true,
                 }
             );
 
-            // Clear any previous tokens
+            // Clear previous tokens and store the new ones
             localStorage.clear();
-            // Set the new access and refresh tokens
             localStorage.setItem('access_token', data.access);
             localStorage.setItem('refresh_token', data.refresh);
 
-            // Set the Authorization header for all future axios requests
+            // Set Authorization header globally for axios
             axios.defaults.headers.common['Authorization'] = `Bearer ${data.access}`;
 
-            // Redirect to homepage
-            navigate('/home');  // Use navigate hook instead of window.location.href
+            // Navigate to the home page
+            navigate('/home');
         } catch (err) {
-            setError("Invalid username or password");  // Error handling
+            setError(err?.response?.data?.detail || "Invalid username or password");
+        } finally {
+            setLoading(false);  // End loading state
         }
     };
 
@@ -51,6 +50,7 @@ export const Login = () => {
                 <div className="Auth-form-content">
                     <h3 className="Auth-form-title">Sign In</h3>
                     {error && <p style={{ color: 'red' }}>{error}</p>}  {/* Display error message */}
+                    
                     <div className="form-group mt-3">
                         <label>Username</label>
                         <input
@@ -63,6 +63,7 @@ export const Login = () => {
                             onChange={(e) => setUsername(e.target.value)}
                         />
                     </div>
+
                     <div className="form-group mt-3">
                         <label>Password</label>
                         <input
@@ -75,9 +76,14 @@ export const Login = () => {
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
+
                     <div className="d-grid gap-2 mt-3">
-                        <button type="submit" className="btn btn-primary">
-                            Submit
+                        <button
+                            type="submit"
+                            className="btn btn-primary"
+                            disabled={loading} // Disable button when loading
+                        >
+                            {loading ? "Logging in..." : "Submit"}
                         </button>
                     </div>
                 </div>

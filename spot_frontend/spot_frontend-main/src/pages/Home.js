@@ -1,42 +1,24 @@
+import React from "react";
 
-// Import the react JS packages
-import { useEffect, useState } from "react";
-import axios from "axios";
-// Define the Login function.
-export const Home = () => {
-  const [message, setMessage] = useState('');
-  useEffect(() => {
-    if (localStorage.getItem('access_token') === null) {
-      window.location.href = '/login'
-    }
-    else {
-      (async () => {
-        try {
-          const { data } = await axios.get(
-            'http://localhost:8000/home/', {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          }
-          );
-          setMessage(data.message);
-        } catch (e) {
-          console.log('not auth')
-        }
-      })()
-    };
-  }, []);
+export  function Home() {
   return (
-    <div className="form-signin mt-5 text-center">
-      <h3>Hi {message}</h3>
+    <div style={styles.container}>
+      <h1 style={styles.title}>Welcome to Spot</h1>
+      <p style={styles.subtitle}>Your Smart Parking Solution</p>
     </div>
-  )
-
+  );
 }
 
-
-
-
-
-
-
+const styles = {
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100vh",
+    background: "linear-gradient(to right, #4facfe, #00f2fe)",
+    color: "white",
+  },
+  title: { fontSize: "3rem", fontWeight: "bold" },
+  subtitle: { fontSize: "1.5rem", marginTop: "10px" },
+};
